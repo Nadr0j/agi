@@ -1,13 +1,11 @@
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-
-import requests
+from typing import Dict, Optional
 from requests import Response
 
-from src.benchmarking.config.tps_runner_config import Config
-from src.ollama_client.client import Client
+from benchmarking.config.tps_runner_config import Config
+from ollama_client.client import Client
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

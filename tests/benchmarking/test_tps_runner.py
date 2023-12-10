@@ -1,9 +1,9 @@
 import unittest
 
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
-from src.benchmarking.config.tps_runner_config import Config
-from src.benchmarking.tps_runner import TpsRunner
+from benchmarking.config.tps_runner_config import Config
+from benchmarking.tps_runner import TpsRunner
 
 
 # TODO: Add test constants class

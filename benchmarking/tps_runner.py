@@ -7,9 +7,14 @@ from requests import Response
 from benchmarking.config.tps_runner_config import Config
 from ollama_client.client import Client
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - [%(levelname)s] - %(message)s"
+)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler())
+
+
+# logging.getLogger().addHandler(logging.StreamHandler())
 
 
 @dataclass

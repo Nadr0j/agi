@@ -9,6 +9,7 @@ from ollama_client.client import Client
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 
 @dataclass

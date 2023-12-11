@@ -50,25 +50,31 @@ class TpsRunner:
     def __get_average_tokens_per_second(self, model_name: str) -> float:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
-            print("benchmarking run")
-            print(benchmark_run)
-            benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
+            if self.__record_is_processable(benchmark_run):
+                print("benchmarking run")
+                print(benchmark_run)
+                benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
         return float(np.mean(benchmark_results))
 
     def __get_tokens_per_second_std(self, model_name: str) -> float:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
-            benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
+            if self.__record_is_processable(benchmark_run):
+                benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
         return float(np.std(benchmark_results))
 
     def __get_num_output_tokens(self, model_name: str) -> int:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
-            benchmark_results.append(benchmark_run["eval_count"])
+            if self.__record_is_processable(benchmark_run):
+                benchmark_results.append(benchmark_run["eval_count"])
         return sum(benchmark_results)
 
     def __pull_model(self, model_name):
         os.system(f"ollama pull {model_name}")
+
+    def __record_is_processable(self, record: Dict) -> bool:
+        return record["done"]
 
     def run(self):
         self.__load_config()

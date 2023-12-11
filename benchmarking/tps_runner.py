@@ -50,6 +50,7 @@ class TpsRunner:
     def __get_average_tokens_per_second(self, model_name: str) -> float:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
+            print(benchmark_run)
             benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
         return np.mean(benchmark_results)[0]
 

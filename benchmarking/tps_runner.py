@@ -51,8 +51,6 @@ class TpsRunner:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
             if self.__record_is_processable(benchmark_run):
-                print("benchmarking run")
-                print(benchmark_run)
                 benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
         return float(np.mean(benchmark_results))
 
@@ -89,8 +87,6 @@ class TpsRunner:
             for _ in range(self.num_runs_per_model):
                 logger.info(f"Starting benchmarking run [{_ + 1}/{self.num_runs_per_model}] for {model}")
                 self.__benchmark_model(model)
-
-        logger.info(f"{self.results_by_model}")
 
         logger.info("Benchmarking complete. Calculating statistics")
         for model in list(self.results_by_model.keys()):

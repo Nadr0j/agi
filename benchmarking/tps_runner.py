@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from dataclasses import dataclass, field
@@ -39,14 +40,24 @@ class TpsRunner:
 
         client: Client = Client()
         logger.info(f"Making request to client for model {model_name}")
-        response: Response = client.send_request(model_name, self.prompt)
-        print(response.text)
+        raw_response: Response = client.send_request(model_name, self.prompt)
+        logger.info(f"Got response from Ollama with status code {raw_response.status_code}")
+        logger.info("Parsing response")
+
+        try:
+            response: Dict = json.loads(raw_response.json())
+            tokens_per_second = response["eval_count"] / (response["eval_duration"] / 1000000000)
+            logger.info(f"Run result for {model_name} - {tokens_per_second} t/s")
+            self.results_by_model[model_name].append(tokens_per_second)
+        except Exception:
+            logger.error(f"Response parsing failed for response - {raw_response.text}")
 
     def run(self):
         self.__load_config()
         for model in list(self.results_by_model.keys()):
             self.__benchmark_model(model)
 
+        print(self.results_by_model)
 
 class Constants:
     MODELS: str = "models"

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 from requests import Response
 
 from benchmarking.config.tps_runner_config import Config
@@ -50,14 +50,30 @@ class TpsRunner:
             logger.error(f"Response parsing failed for response - {raw_response.text}")
             logger.error(e)
 
+    def __get_average_tokens_per_second(self, model_name: str):
+        benchmark_results = []
+        for benchmark_run in self.results_by_model[model_name]:
+            benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
+        return sum(benchmark_results) / len(benchmark_results)
+
     def run(self):
+        # Callable must take model name as arg
+        # TODO: Instead of callable use an abstract class or something less hacky
+        analyses: list[Callable] = [self.__get_average_tokens_per_second]
+
         self.__load_config()
         for model in list(self.results_by_model.keys()):
             for _ in range(self.num_runs_per_model):
                 logger.info(f"Making call number [{_ + 1}] for {model}")
                 self.__benchmark_model(model)
+            logger.info(f"Model {model} average tokens-per-second {self.__get_average_tokens_per_second(model)}")
 
-        print(self.results_by_model)
+        logger.info("Benchmarking complete. Calculating statistics")
+        for model in list(self.results_by_model.keys()):
+            logging.info(f"########## STATISTICS FOR [{model}] ##########")
+            for callable_ in analyses:
+                callable_(model)
+
 
 class Constants:
     MODELS: str = "models"

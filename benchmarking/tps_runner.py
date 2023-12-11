@@ -45,10 +45,7 @@ class TpsRunner:
         logger.info("Parsing response")
 
         try:
-            response: Dict = raw_response.json()
-            tokens_per_second = response["eval_count"] / (response["eval_duration"] / 1000000000)
-            logger.info(f"Run result for {model_name} - {tokens_per_second} t/s")
-            self.results_by_model[model_name].append(tokens_per_second)
+            self.results_by_model[model_name].append(raw_response.json())
         except Exception as e:
             logger.error(f"Response parsing failed for response - {raw_response.text}")
             logger.error(e)

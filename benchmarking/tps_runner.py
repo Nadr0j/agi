@@ -72,7 +72,7 @@ class TpsRunner:
         os.system(f"ollama pull {model_name}")
 
     def __record_is_processable(self, record: Dict) -> bool:
-        return record["done"]
+        return "done" in record and record["done"]
 
     def run(self):
         self.__load_config()

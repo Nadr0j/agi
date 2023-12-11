@@ -81,8 +81,6 @@ class TpsRunner:
             for _ in range(self.num_runs_per_model):
                 logger.info(f"Making call number [{_ + 1}] for {model}")
                 self.__benchmark_model(model)
-                logger.info(f"{self.results_by_model}")
-            logger.info(f"Model {model} average tokens-per-second {self.__get_average_tokens_per_second(model)}")
 
         logger.info(f"{self.results_by_model}")
 

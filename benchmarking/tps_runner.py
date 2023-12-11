@@ -53,13 +53,13 @@ class TpsRunner:
             print("benchmarking run")
             print(benchmark_run)
             benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
-        return np.mean(benchmark_results)[0]
+        return float(np.mean(benchmark_results))
 
     def __get_tokens_per_second_std(self, model_name: str) -> float:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
             benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
-        return np.std(benchmark_results)[0]
+        return float(np.std(benchmark_results))
 
     def __get_num_output_tokens(self, model_name: str) -> int:
         benchmark_results = []
@@ -81,7 +81,7 @@ class TpsRunner:
         logger.info(f"Running analyses on {len(models)} models")
         for model in list(self.results_by_model.keys()):
             for _ in range(self.num_runs_per_model):
-                logger.info(f"Making call number [{_ + 1}] for {model}")
+                logger.info(f"Starting benchmarking run [{_ + 1}/{self.num_runs_per_model}] for {model}")
                 self.__benchmark_model(model)
 
         logger.info(f"{self.results_by_model}")

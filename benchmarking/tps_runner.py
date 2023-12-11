@@ -1,5 +1,6 @@
 import json
 import logging
+import numpy as np
 import os
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Callable
@@ -34,10 +35,6 @@ class TpsRunner:
         logger.info(f"Running benchmarking number of times - {self.num_runs_per_model}")
 
     def __benchmark_model(self, model_name: str):
-        # TODO: Replace this with check if model is already pulled
-        logger.info(f"Pulling {model_name}")
-        os.system(f"ollama pull {model_name}")
-
         client: Client = Client()
         logger.info(f"Making request to client for model {model_name}")
         raw_response: Response = client.send_request(model_name, self.prompt)
@@ -50,14 +47,36 @@ class TpsRunner:
             logger.error(f"Response parsing failed for response - {raw_response.text}")
             logger.error(e)
 
-    def __get_average_tokens_per_second(self, model_name: str):
+    def __get_average_tokens_per_second(self, model_name: str) -> float:
         benchmark_results = []
         for benchmark_run in self.results_by_model[model_name]:
             benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
-        return sum(benchmark_results) / len(benchmark_results)
+        return np.mean(benchmark_results)[0]
+
+    def __get_tokens_per_second_std(self, model_name: str) -> float:
+        benchmark_results = []
+        for benchmark_run in self.results_by_model[model_name]:
+            benchmark_results.append(benchmark_run["eval_count"] / (benchmark_run["eval_duration"] / 1000000000))
+        return np.std(benchmark_results)[0]
+
+    def __get_num_output_tokens(self, model_name: str) -> int:
+        benchmark_results = []
+        for benchmark_run in self.results_by_model[model_name]:
+            benchmark_results.append(benchmark_run["eval_count"])
+        return sum(benchmark_results)
+
+    def __pull_model(self, model_name):
+        os.system(f"ollama pull {model_name}")
 
     def run(self):
         self.__load_config()
+        models = list(self.results_by_model.keys())
+
+        logger.info(f"Pulling {len(models)} models")
+        for model in list(self.results_by_model.keys()):
+            self.__pull_model(model)
+
+        logger.info(f"Running analyses on {len(models)} models")
         for model in list(self.results_by_model.keys()):
             for _ in range(self.num_runs_per_model):
                 logger.info(f"Making call number [{_ + 1}] for {model}")
@@ -68,7 +87,8 @@ class TpsRunner:
         for model in list(self.results_by_model.keys()):
             logging.info(f"########## STATISTICS FOR [{model}] ##########")
             logging.info(f"tokens/second - {self.__get_average_tokens_per_second(model)}")
-
+            logging.info(f"t/s std - {self.__get_tokens_per_second_std(model)}")
+            logging.info(f"token N - {self.__get_num_output_tokens(model)}")
 
 class Constants:
     MODELS: str = "models"

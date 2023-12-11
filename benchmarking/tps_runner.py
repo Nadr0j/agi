@@ -53,7 +53,9 @@ class TpsRunner:
     def run(self):
         self.__load_config()
         for model in list(self.results_by_model.keys()):
-            self.__benchmark_model(model)
+            for _ in range(self.num_runs_per_model):
+                logger.info(f"Making call number [{_ + 1}] for {model}")
+                self.__benchmark_model(model)
 
         print(self.results_by_model)
 

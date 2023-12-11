@@ -57,10 +57,6 @@ class TpsRunner:
         return sum(benchmark_results) / len(benchmark_results)
 
     def run(self):
-        # Callable must take model name as arg
-        # TODO: Instead of callable use an abstract class or something less hacky
-        analyses: list[Callable] = [self.__get_average_tokens_per_second]
-
         self.__load_config()
         for model in list(self.results_by_model.keys()):
             for _ in range(self.num_runs_per_model):
@@ -71,8 +67,7 @@ class TpsRunner:
         logger.info("Benchmarking complete. Calculating statistics")
         for model in list(self.results_by_model.keys()):
             logging.info(f"########## STATISTICS FOR [{model}] ##########")
-            for callable_ in analyses:
-                callable_(model)
+            logging.info(f"tokens/second - {self.__get_average_tokens_per_second(model)}")
 
 
 class Constants:
